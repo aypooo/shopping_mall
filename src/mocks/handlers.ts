@@ -1,7 +1,7 @@
 import { HttpResponse, graphql } from 'msw'
 import { v4 as uuid } from 'uuid'
 import { GET_PRODUCT, GET_PRODUCTS } from '../graphql/products'
-import { ADD_CART, CartType, GET_CART, UPDATE_CART } from '../graphql/cart'
+import { ADD_CART, CartType, DELETE_CART, GET_CART, UPDATE_CART } from '../graphql/cart'
 
 const mockProducts = Array.from({ length: 20}).map(
     (_, i) => ({
@@ -39,41 +39,43 @@ export const handlers = [
         })
     }),
     graphql.mutation(ADD_CART, ({variables}) => {
-        const newData = {...cartData}
+        const newCartData = {...cartData}
         const id = variables.id
-        if(newData[id]){
-            newData[id] = {
-                ...newData[id],
-                amount: (newData[id].amount || 0) + 1
-            }
-        } else {
-            const found = mockProducts.find(item => item.id === variables.id)
-            if(found) {
-                newData[id] = {
-                    ...found,
-                    amount: 1,
-            }
-            }
+        const targetProduct = mockProducts.find(item => item.id === variables.id)
+        if(!targetProduct) { throw new Error('상품이 없습니다.')}
+        
+        const newItem = {
+            ...targetProduct,
+            amount: (newCartData[id]?.amount || 0) + 1
         }
-        cartData = newData
-        console.log(cartData[id].id,"->",cartData[id].amount)
+        newCartData[id] = newItem        
+        cartData = newCartData
         return HttpResponse.json({
-            data: cartData,
+            data: newItem,
         })
     }),
     graphql.mutation(UPDATE_CART, ({variables}) => {
         const newData = {...cartData}
         const { id, amount } = variables
         if(!newData[id]){ throw new Error('없는 데이터입니다')}
-        newData[id] = {
+        const newItem = {
             ...newData[id],
             amount,
         }
+        newData[id] = newItem
         cartData = newData
-        console.log(cartData[id].id,"->",cartData[id].amount)
         return HttpResponse.json({
-            data: cartData,
+            data: newItem,
         })
     }),
+    graphql.mutation(DELETE_CART, ({variables}) => {
+        const newData = { ...cartData }
+        const id = variables.id
+        delete newData[id]
+        cartData = newData
+        return HttpResponse.json({
+            data: id,
+        })
+    })
         
 ]
