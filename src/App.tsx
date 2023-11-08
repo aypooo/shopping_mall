@@ -6,6 +6,7 @@ import ProductsList from './pages/Products/ProductsList';
 import ProductsDetailPage from './pages/Products/ProductsDetailPage';
 import Gnb from './components/gnb';
 import CartPage from './pages/cart/CartPage'
+import PaymentIndex from './pages/payment/PaymentIndex';
 
 function App() {
   const queryClient = new QueryClient()
@@ -16,6 +17,7 @@ function App() {
             <Route path="/" element={<MainPage/>}/>
             <Route path="/products" element={<ProductsList/>}/>
             <Route path="/products/:id" element={<ProductsDetailPage/>}/>
+            <Route path="/payment" element={<PaymentIndex/>}/>
             <Route path="/cart" element={<CartPage/>}/>
         </Routes>
         <ReactQueryDevtools initialIsOpen={false}/>
