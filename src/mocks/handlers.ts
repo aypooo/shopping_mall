@@ -2,6 +2,7 @@ import { HttpResponse, graphql } from 'msw'
 import { v4 as uuid } from 'uuid'
 import { GET_PRODUCT, GET_PRODUCTS } from '../graphql/products'
 import { ADD_CART, CartType, DELETE_CART, GET_CART, UPDATE_CART } from '../graphql/cart'
+import { EXECUTE_PAY } from '../graphql/payment'
 
 const mockProducts = Array.from({ length: 20}).map(
     (_, i) => ({
@@ -76,6 +77,14 @@ export const handlers = [
         return HttpResponse.json({
             data: id,
         })
-    })
-        
+    }),
+    graphql.mutation(EXECUTE_PAY, ({ variables: ids }) => {
+            ids.forEach((id: string) => {
+                delete cartData[id]
+            })
+        return  HttpResponse.json({
+            data: ids,
+        })
+      }),
+    
 ]
